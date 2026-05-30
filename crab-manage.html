@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Crab List</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  font-family: Arial;
+  padding:20px;
+  margin:0;
+  min-height:100vh;
+  background: linear-gradient(to bottom, #0096c7, #48cae4, #ade8f4);
+  overflow:hidden;
+  color:white;
+}
+
+/* 🌊 Aquarium Background */
+.aquarium{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  z-index:0;
+  pointer-events:none;
+}
+
+.fish{
+  position:absolute;
+  font-size:38px;
+  opacity:0.3;
+}
+
+.left{ animation: swimLeft linear infinite; }
+.right{ animation: swimRight linear infinite; }
+
+.f1{ top:20%; animation-duration:18s; }
+.f2{ top:40%; animation-duration:25s; }
+.f3{ top:65%; animation-duration:22s; }
+
+@keyframes swimRight{
+  0%{ left:-10%; }
+  100%{ left:110%; }
+}
+
+@keyframes swimLeft{
+  0%{ left:110%; transform:scaleX(-1); }
+  100%{ left:-10%; transform:scaleX(-1); }
+}
+
+/* 🫧 Bubbles */
+.bubble{
+  position:absolute;
+  bottom:-50px;
+  font-size:20px;
+  opacity:0.3;
+  animation: rise linear infinite;
+}
+
+@keyframes rise{
+  0%{ transform:translateY(0); opacity:0.4; }
+  100%{ transform:translateY(-1000px); opacity:0; }
+}
+
+/* Header */
+h2{
+  text-align:center;
+  margin-bottom:25px;
+  position:relative;
+  z-index:2;
+}
+
+/* Glass List Container */
+#list{
+  max-width:420px;
+  margin:auto;
+  background:rgba(255,255,255,0.25);
+  backdrop-filter:blur(12px);
+  border-radius:20px;
+  overflow:hidden;
+  position:relative;
+  z-index:2;
+}
+
+/* List Items */
+.item{
+  padding:18px;
+  border-bottom:1px solid rgba(255,255,255,0.3);
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.item:hover{
+  background:rgba(255,255,255,0.2);
+  transform:scale(1.02);
+}
+
+/* Floating Add Button */
+.fab{
+  position:fixed;
+  bottom:25px;
+  right:25px;
+  width:65px;
+  height:65px;
+  border-radius:50%;
+  font-size:32px;
+  border:none;
+  background:white;
+  color:#0077b6;
+  box-shadow:0 5px 20px rgba(0,0,0,0.3);
+  cursor:pointer;
+  z-index:2;
+  transition:0.3s;
+}
+
+.fab:hover{
+  transform:scale(1.1);
+  background:#caf0f8;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 🌊 Ocean Animation -->
+<div class="aquarium">
+  <div class="fish right f1">🐟</div>
+  <div class="fish left f2">🐠</div>
+  <div class="fish right f3">🐡</div>
+
+  <div class="bubble" style="left:15%; animation-duration:12s;">🫧</div>
+  <div class="bubble" style="left:45%; animation-duration:18s;">🫧</div>
+  <div class="bubble" style="left:75%; animation-duration:15s;">🫧</div>
+</div>
+
+<h2>🦀 Crab List</h2>
+
+<div id="list"></div>
+
+<button class="fab" onclick="location.href='add-crab.html'">+</button>
+
+<script type="module">
+import { db, collection, getDocs } from "./firebase.js";
+
+const list = document.getElementById("list");
+
+const snapshot = await getDocs(collection(db, "crab"));
+
+if(snapshot.empty){
+  list.innerHTML = "<p style='padding:15px'>No items found</p>";
+}
+
+snapshot.forEach(function(docSnap) {
+
+  const data = docSnap.data();
+
+  const div = document.createElement("div");
+  div.className = "item";
+
+  div.innerHTML =
+    "<b>" + data.category + "</b><br>" +
+    "Market: " + data.market + " | Offer: " + data.offer;
+
+  div.onclick = function() {
+    window.location.href = "edit-crab.html?id=" + docSnap.id;
+  };
+
+  list.appendChild(div);
+});
+</script>
+
+</body>
+</html>

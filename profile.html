@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>User Profile</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f4f4f4;
+      padding: 20px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .back {
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    .field {
+      margin-bottom: 15px;
+    }
+    label {
+      font-size: 14px;
+      color: #555;
+    }
+    input {
+      width: 100%;
+      border: none;
+      border-bottom: 1px solid #999;
+      padding: 6px;
+      background: transparent;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border-radius: 20px;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .update { background: #ddd; }
+    .delete { background: #eee; }
+  </style>
+</head>
+
+<body>
+
+<!-- ✅ HEADER WITH WORKING ARROW -->
+<div class="header">
+  <span class="back" onclick="goBack()">←</span>
+  <h2 style="margin:0;">User Profile</h2>
+</div>
+
+<div class="field">
+  <label>First Name</label>
+  <input id="firstName">
+</div>
+
+<div class="field">
+  <label>Last Name</label>
+  <input id="lastName">
+</div>
+
+<div class="field">
+  <label>Phone Number</label>
+  <input id="phone">
+</div>
+
+<div class="field">
+  <label>Address</label>
+  <input id="address">
+</div>
+
+<div class="field">
+  <label>Latitude</label>
+  <input id="latitude">
+</div>
+
+<div class="field">
+  <label>Longitude</label>
+  <input id="longitude">
+</div>
+
+<div class="field">
+  <label>Pincode</label>
+  <input id="pincode">
+</div>
+
+<div class="field">
+  <label>Birthdate</label>
+  <input type="date" id="dob">
+</div>
+
+<div class="field">
+  <label>Email</label>
+  <input id="email">
+</div>
+
+<button class="update" onclick="updateUser()">Update User</button>
+<button class="delete" onclick="deleteUser()">Delete User</button>
+
+<script>
+  // Load user data
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  if (user) {
+    firstName.value = user.firstName;
+    lastName.value = user.lastName;
+    phone.value = user.phone;
+    address.value = user.address;
+    latitude.value = user.latitude;
+    longitude.value = user.longitude;
+    pincode.value = user.pincode;
+    dob.value = user.dob;
+    email.value = user.email;
+  }
+
+  // ✅ Back arrow function
+  function goBack() {
+    history.back(); // works like mobile back button
+  }
+
+  function updateUser() {
+    const updatedUser = {
+      firstName: firstName.value,
+      lastName: lastName.value,
+      phone: phone.value,
+      address: address.value,
+      latitude: latitude.value,
+      longitude: longitude.value,
+      pincode: pincode.value,
+      dob: dob.value,
+      email: email.value
+    };
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+    alert("User updated successfully");
+  }
+
+  function deleteUser() {
+    localStorage.removeItem("user");
+    alert("User deleted");
+    window.location.href = "login.html";
+  }
+</script>
+
+</body>
+</html>

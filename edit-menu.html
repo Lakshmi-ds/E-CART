@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Edit Menu</title>
+</head>
+<body>
+
+<h2>Edit Menu</h2>
+
+<input id="name">
+<input id="marketPrice">
+<input id="offerPrice">
+<input id="premiumPrice">
+<input id="nutrition1">
+<input id="nutrition2">
+
+<button onclick="update()">Update</button>
+
+<script type="module">
+import { db } from "./firebase.js";
+import { doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const id = localStorage.getItem("editId");
+const ref = doc(db,"menu",id);
+
+const snap = await getDoc(ref);
+const d = snap.data();
+
+name.value = d.name;
+marketPrice.value = d.marketPrice;
+offerPrice.value = d.offerPrice;
+premiumPrice.value = d.premiumPrice;
+nutrition1.value = d.nutrition1;
+nutrition2.value = d.nutrition2;
+
+window.update = async ()=>{
+  await updateDoc(ref,{
+    name: name.value,
+    marketPrice: marketPrice.value,
+    offerPrice: offerPrice.value,
+    premiumPrice: premiumPrice.value,
+    nutrition1: nutrition1.value,
+    nutrition2: nutrition2.value
+  });
+
+  alert("Updated");
+  window.history.back();
+}
+</script>
+
+</body>
+</html>

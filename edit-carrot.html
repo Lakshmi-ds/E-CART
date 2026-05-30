@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Edit Carrot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  padding:20px;
+  background:linear-gradient(-45deg,#d4edda,#a8e6a3,#c8facc,#e6ffe6);
+  background-size:400% 400%;
+  animation:bgMove 12s ease infinite;
+  overflow-x:hidden;
+}
+
+/* Background animation */
+@keyframes bgMove{
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
+}
+
+h2{
+  text-align:center;
+  color:#2e7d32;
+  animation:fadeDown 0.6s ease;
+}
+
+@keyframes fadeDown{
+  from{opacity:0; transform:translateY(-20px);}
+  to{opacity:1; transform:translateY(0);}
+}
+
+/* Form Card */
+.form-box{
+  max-width:420px;
+  margin:20px auto;
+  background:white;
+  padding:25px;
+  border-radius:25px;
+  box-shadow:0 15px 30px rgba(0,0,0,0.15);
+  animation:fadeUp 0.7s ease;
+}
+
+@keyframes fadeUp{
+  from{opacity:0; transform:translateY(40px);}
+  to{opacity:1; transform:translateY(0);}
+}
+
+input, textarea{
+  width:100%;
+  padding:12px;
+  margin:12px 0;
+  border-radius:12px;
+  border:1px solid #c8e6c9;
+  font-size:14px;
+  transition:0.3s;
+}
+
+input:focus, textarea:focus{
+  outline:none;
+  border-color:#66bb6a;
+  box-shadow:0 0 10px #a5d6a7;
+}
+
+button{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:30px;
+  background:#4caf50;
+  color:white;
+  font-weight:bold;
+  font-size:16px;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+button:hover{
+  background:#2e7d32;
+  transform:scale(1.05);
+}
+</style>
+</head>
+
+<body>
+  <div class="leaf">🥬</div>
+<div class="leaf leaf2">🌿</div>
+<div class="leaf leaf3">🍃</div>
+<style>
+.leaf{
+  position:fixed;
+  font-size:40px;
+  opacity:0.4;
+  animation:floatLeaf 18s linear infinite;
+}
+
+.leaf2{
+  left:70%;
+  animation-duration:22s;
+}
+
+.leaf3{
+  left:40%;
+  animation-duration:20s;
+}
+
+@keyframes floatLeaf{
+  0%{ top:-50px; transform:rotate(0deg);}
+  100%{ top:110%; transform:rotate(360deg);}
+}
+</style>
+
+<h2>Edit carrot</h2>
+
+<div class="form-box">
+  <input id="category" placeholder="Category">
+  <input id="market" placeholder="Market Price">
+  <input id="offer" placeholder="Offer Price">
+  <input id="nutrition1" placeholder="Nutrition 1">
+  <input id="nutrition2" placeholder="Nutrition 2">
+  <textarea id="area" placeholder="Area (comma separated)"></textarea>
+  <button id="update">Update</button>
+</div>
+
+
+<script type="module">
+import { db, doc } from "./firebase.js";
+import { getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const id = new URLSearchParams(window.location.search).get("id");
+
+const category = document.getElementById("category");
+const market = document.getElementById("market");
+const offer = document.getElementById("offer");
+const nutrition1 = document.getElementById("nutrition1");
+const nutrition2 = document.getElementById("nutrition2");
+const area = document.getElementById("area");
+
+// load
+const snap = await getDoc(doc(db, "carrot", id));
+
+if(snap.exists()){
+  const data = snap.data();
+
+  category.value = data.category || "";
+  market.value = data.market || "";
+  offer.value = data.offer || "";
+  nutrition1.value = data.nutrition1 || "";
+  nutrition2.value = data.nutrition2 || "";
+  area.value = data.area ? data.area.join(", ") : "";
+}
+
+// update
+document.getElementById("update").onclick = async () => {
+  await updateDoc(doc(db, "carrot", id), {
+    category: category.value,
+    market: market.value,
+    offer: offer.value,
+    nutrition1: nutrition1.value,
+    nutrition2: nutrition2.value,
+    area: area.value.split(",").map(a => a.trim())
+  });
+
+  alert("Updated");
+  location.href = "carrot-list.html";
+};
+</script>
+
+</body>
+</html>

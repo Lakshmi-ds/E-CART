@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Bangda</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background: linear-gradient(to bottom, #0096c7, #48cae4, #ade8f4);
+  overflow:hidden;
+}
+
+/* 🌊 Aquarium Background */
+.aquarium{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  z-index:0;
+  pointer-events:none;
+}
+
+.fish{
+  position:absolute;
+  font-size:38px;
+  opacity:0.35;
+}
+
+.left{ animation: swimLeft linear infinite; }
+.right{ animation: swimRight linear infinite; }
+
+.f1{ top:15%; animation-duration:18s; }
+.f2{ top:30%; animation-duration:25s; }
+.f3{ top:50%; animation-duration:22s; }
+.f4{ top:70%; animation-duration:28s; }
+
+@keyframes swimRight{
+  0%{ left:-10%; }
+  100%{ left:110%; }
+}
+
+@keyframes swimLeft{
+  0%{ left:110%; transform:scaleX(-1); }
+  100%{ left:-10%; transform:scaleX(-1); }
+}
+
+/* 🦀 Bangda */
+.bangda{
+  position:absolute;
+  bottom:5px;
+  left:-10%;
+  font-size:45px;
+  opacity:0.4;
+  animation: walk 35s linear infinite;
+}
+
+@keyframes walk{
+  0%{ left:-10%; }
+  100%{ left:110%; }
+}
+
+/* 🫧 Bubbles */
+.bubble{
+  position:absolute;
+  bottom:-50px;
+  font-size:22px;
+  opacity:0.3;
+  animation: rise linear infinite;
+}
+
+@keyframes rise{
+  0%{ transform:translateY(0); opacity:0.4; }
+  100%{ transform:translateY(-1000px); opacity:0; }
+}
+
+/* Floating animation */
+.float{
+  animation: floatBox 4s ease-in-out infinite alternate;
+}
+
+@keyframes floatBox{
+  from{ transform:translateY(0px); }
+  to{ transform:translateY(-8px); }
+}
+
+/* Header */
+.header{
+  padding:15px;
+  font-size:22px;
+  font-weight:bold;
+  color:white;
+  position:relative;
+  z-index:2;
+}
+
+/* Info Box */
+.info-box{
+  background:rgba(255,255,255,0.25);
+  backdrop-filter:blur(15px);
+  color:white;
+  margin:15px;
+  padding:18px;
+  border-radius:20px;
+  line-height:1.6;
+  position:relative;
+  z-index:2;
+}
+
+/* Product Card */
+.card{
+  background:rgba(255,255,255,0.3);
+  backdrop-filter:blur(15px);
+  margin:15px;
+  padding:25px;
+  border-radius:25px;
+  position:relative;
+  z-index:2;
+  color:white;
+}
+
+.price{
+  margin-top:10px;
+}
+
+.old-price{
+  text-decoration:line-through;
+  opacity:0.8;
+}
+
+.new-price{
+  font-weight:bold;
+  font-size:22px;
+}
+
+/* Add Button */
+#addBtn{
+  position:absolute;
+  right:20px;
+  bottom:20px;
+  background:white;
+  color:#0077b6;
+  border:none;
+  padding:12px 22px;
+  border-radius:25px;
+  cursor:pointer;
+  font-weight:bold;
+  transition:0.3s;
+}
+
+#addBtn:hover{
+  transform:scale(1.08);
+  background:#caf0f8;
+}
+
+.added{
+  background:green !important;
+  color:white !important;
+}
+
+/* Floating Cart */
+.floating-cart{
+  position:fixed;
+  bottom:25px;
+  right:20px;
+  background:white;
+  width:65px;
+  height:65px;
+  border-radius:20px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  box-shadow:0 4px 15px rgba(0,0,0,0.3);
+  cursor:pointer;
+  font-size:24px;
+  z-index:2;
+  transition:0.3s;
+}
+
+.floating-cart:hover{
+  transform:scale(1.1);
+}
+
+#cartCount{
+  position:absolute;
+  top:5px;
+  right:8px;
+  background:red;
+  color:white;
+  font-size:12px;
+  padding:3px 6px;
+  border-radius:50%;
+}
+</style>
+</head>
+
+<body>
+
+<div class="aquarium">
+  <div class="fish right f1">🐟</div>
+  <div class="fish left f2">🐠</div>
+  <div class="fish right f3">🐡</div>
+  <div class="fish left f4">🐟</div>
+
+  <div class="bangda">🦀</div>
+
+  <div class="bubble" style="left:10%; animation-duration:12s;">🫧</div>
+  <div class="bubble" style="left:30%; animation-duration:18s;">🫧</div>
+  <div class="bubble" style="left:50%; animation-duration:15s;">🫧</div>
+  <div class="bubble" style="left:70%; animation-duration:20s;">🫧</div>
+  <div class="bubble" style="left:90%; animation-duration:16s;">🫧</div>
+</div>
+
+<div class="header">
+  <span onclick="goBack()" style="cursor:pointer;">←</span> Bangda
+</div>
+
+<div class="info-box float">
+  <b>Whole :</b> As is from sea with just a water wash<br>
+  <b>Cleaned :</b> Basic cleaning/scaling<br>
+  <b>Filleted :</b> Cleaned and cut<br>
+  <b>Frozen :</b> Cleaned, cut and frozen<br>
+  <b>Dried :</b> Cleaned, cut and dried<br>
+  <b>Canned :</b> Cleaned and/or cut and canned
+</div>
+
+<div class="card float">
+  <h3>Frozen</h3>
+
+  <div class="price">
+    <div class="old-price">₹ 350</div>
+    <div class="new-price">₹ 300</div>
+  </div>
+
+  <button id="addBtn" onclick="addToCart()">Add</button>
+</div>
+
+<div class="floating-cart" onclick="goToCart()">
+  🛍
+  <span id="cartCount">0</span>
+</div>
+
+<script type="module">
+import { db } from "./firebase.js";
+import { collection, addDoc, getDocs }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const phone = sessionStorage.getItem("phone");
+
+if(!phone){
+  location.href="index.html";
+}
+
+window.goBack = function(){
+  window.history.back();
+};
+
+window.goToCart = function(){
+  window.location.href="cart.html";
+};
+
+window.addToCart = async function(){
+
+  try{
+    const cartRef = collection(db,"cart",phone,"items");
+
+    await addDoc(cartRef,{
+      name: "Bangda",
+      type: "Frozen",
+      category: "Fish",
+      price: 300,
+      quantity: 1,
+      createdAt: new Date()
+    });
+
+    const btn = document.getElementById("addBtn");
+    btn.innerText = "Added ✅";
+    btn.classList.add("added");
+    btn.disabled = true;
+
+    updateCartCount();
+  }
+  catch(error){
+    console.error(error);
+    alert("Error adding to cart");
+  }
+};
+
+async function updateCartCount(){
+  const snapshot = await getDocs(collection(db,"cart",phone,"items"));
+
+  let totalQty = 0;
+
+  snapshot.forEach(doc=>{
+    totalQty += doc.data().quantity;
+  });
+
+  document.getElementById("cartCount").innerText = totalQty;
+}
+
+updateCartCount();
+</script>
+
+</body>
+</html>

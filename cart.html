@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>My Cart</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#f5f0f4;
+}
+
+/* HEADER */
+.header{
+  display:flex;
+  align-items:center;
+  padding:18px;
+  font-size:22px;
+  font-weight:bold;
+}
+
+.back{
+  font-size:24px;
+  margin-right:10px;
+  cursor:pointer;
+}
+
+/* CART ITEMS AREA */
+.cart-items{
+  padding:16px;
+  margin-bottom:130px;
+}
+
+/* MODERN CART CARD */
+.cart-card{
+  background:#b7ccd1;
+  padding:18px;
+  border-radius:20px;
+  margin-bottom:18px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
+}
+
+.cart-card h4{
+  margin:0 0 8px;
+  font-size:18px;
+  text-transform:capitalize;
+}
+
+.price{
+  font-weight:bold;
+  margin-bottom:8px;
+}
+
+/* QTY ROW */
+.qty-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin:10px 0;
+}
+
+.qty-btn{
+  width:32px;
+  height:32px;
+  border:none;
+  border-radius:8px;
+  background:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.remove-btn{
+  background:#ffdddd;
+  border:none;
+  border-radius:8px;
+  padding:6px 10px;
+  cursor:pointer;
+}
+
+/* SUBTOTAL */
+.subtotal{
+  font-weight:bold;
+  margin-top:5px;
+}
+
+/* BOTTOM PRICE BAR */
+.bottom-bar{
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  width:92%;
+  background:#165b84;
+  color:white;
+  border-radius:22px;
+  padding:20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:0 6px 14px rgba(0,0,0,0.2);
+}
+
+.price-box{
+  font-size:16px;
+}
+
+.price-box strong{
+  display:block;
+  font-size:22px;
+  margin-top:4px;
+}
+
+.pay-btn{
+  background:transparent;
+  border:2px solid white;
+  padding:10px 20px;
+  color:white;
+  border-radius:30px;
+  cursor:pointer;
+  font-size:16px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  <div class="back" onclick="goBack()">←</div>
+  My Cart
+</div>
+
+<div class="cart-items" id="cartItems"></div>
+
+<div class="bottom-bar">
+  <div class="price-box">
+    Total Price
+    <strong id="total">₹0.00</strong>
+  </div>
+  <button class="pay-btn" onclick="payNow()">Pay Now ></button>
+</div>
+
+<script type="module">
+import { db } from "./firebase.js";
+import { collection, getDocs, doc, updateDoc, deleteDoc }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+window.goBack = function(){
+  window.history.back();
+}
+
+const phone = sessionStorage.getItem("phone");
+if(!phone){
+  location.href="index.html";
+}
+
+const cartContainer = document.getElementById("cartItems");
+const totalElement = document.getElementById("total");
+
+async function loadCart(){
+  cartContainer.innerHTML="";
+  let grandTotal = 0;
+
+  const snapshot = await getDocs(collection(db,"cart",phone,"items"));
+
+  snapshot.forEach(docSnap=>{
+    const data = docSnap.data();
+    const id = docSnap.id;
+    const subTotal = data.price * data.quantity;
+    grandTotal += subTotal;
+
+    cartContainer.innerHTML += `
+      <div class="cart-card">
+        <h4>${data.name} - ${data.type}</h4>
+        <div class="price">Price: ₹${data.price}</div>
+
+        <div class="qty-row">
+          <button class="qty-btn" onclick="changeQty('${id}',-1)">-</button>
+          <span>${data.quantity}</span>
+          <button class="qty-btn" onclick="changeQty('${id}',1)">+</button>
+          <button class="remove-btn" onclick="removeItem('${id}')">❌</button>
+        </div>
+
+        <div class="subtotal">Subtotal: ₹${subTotal}</div>
+      </div>
+    `;
+  });
+
+  totalElement.innerText = "₹" + grandTotal.toFixed(2);
+}
+
+window.changeQty = async function(id,change){
+  const itemRef = doc(db,"cart",phone,"items",id);
+  const snapshot = await getDocs(collection(db,"cart",phone,"items"));
+
+  snapshot.forEach(async docSnap=>{
+    if(docSnap.id === id){
+      const data = docSnap.data();
+      const newQty = data.quantity + change;
+
+      if(newQty <= 0){
+        await deleteDoc(itemRef);
+      }else{
+        await updateDoc(itemRef,{ quantity:newQty });
+      }
+      loadCart();
+    }
+  });
+}
+
+window.removeItem = async function(id){
+  await deleteDoc(doc(db,"cart",phone,"items",id));
+  loadCart();
+}
+
+window.payNow = function(){
+  alert("Proceeding to payment...");
+}
+
+loadCart();
+</script>
+
+</body>
+</html>

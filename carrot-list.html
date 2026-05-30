@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Carrot</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:linear-gradient(-45deg,#d4edda,#a8e6a3,#c8facc,#e6ffe6);
+  background-size:400% 400%;
+  animation:bgMove 12s ease infinite;
+  overflow-x:hidden;
+}
+
+/* Background animation */
+@keyframes bgMove{
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
+}
+
+/* Header */
+.header{
+  padding:18px;
+  font-size:22px;
+  font-weight:bold;
+  color:#2e7d32;
+  animation:fadeDown 0.6s ease;
+}
+
+@keyframes fadeDown{
+  from{opacity:0; transform:translateY(-20px);}
+  to{opacity:1; transform:translateY(0);}
+}
+
+/* Info Box */
+.note{
+  background:#4caf50;
+  color:white;
+  margin:15px;
+  padding:15px;
+  border-radius:15px;
+  line-height:1.6;
+  box-shadow:0 5px 15px rgba(0,0,0,0.1);
+  animation:fadeIn 1s ease;
+}
+
+/* Product Card */
+.card{
+  background:white;
+  margin:15px;
+  padding:20px;
+  border-radius:20px;
+  position:relative;
+  box-shadow:0 8px 20px rgba(0,0,0,0.1);
+  animation:fadeUp 0.6s ease;
+  transition:0.3s;
+}
+
+.card:hover{
+  transform:translateY(-5px);
+}
+
+@keyframes fadeUp{
+  from{opacity:0; transform:translateY(30px);}
+  to{opacity:1; transform:translateY(0);}
+}
+
+.card h3{
+  margin:0;
+  color:#2e7d32;
+}
+
+.price-box{
+  margin-top:10px;
+}
+
+.old-price{
+  text-decoration:line-through;
+  color:#888;
+}
+
+.new-price{
+  font-weight:bold;
+  font-size:20px;
+  color:#1b5e20;
+}
+
+/* Add Button */
+.add-btn{
+  position:absolute;
+  right:20px;
+  bottom:20px;
+  background:#4caf50;
+  color:white;
+  border:none;
+  padding:10px 20px;
+  border-radius:25px;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.add-btn:hover{
+  background:#2e7d32;
+  transform:scale(1.05);
+}
+
+.added{
+  background:#1b5e20 !important;
+}
+
+/* Floating Cart */
+.floating-cart{
+  position:fixed;
+  bottom:25px;
+  right:20px;
+  background:white;
+  width:70px;
+  height:70px;
+  border-radius:25px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  box-shadow:0 6px 15px rgba(0,0,0,0.2);
+  cursor:pointer;
+  font-size:26px;
+  transition:0.3s;
+  animation:cartFloat 3s ease-in-out infinite;
+}
+
+@keyframes cartFloat{
+  0%{ transform:translateY(0);}
+  50%{ transform:translateY(-8px);}
+  100%{ transform:translateY(0);}
+}
+
+.floating-cart:hover{
+  transform:scale(1.1);
+}
+
+#cartCount{
+  position:absolute;
+  top:8px;
+  right:10px;
+  background:red;
+  color:white;
+  font-size:12px;
+  padding:4px 7px;
+  border-radius:50%;
+}
+</style>
+</head>
+<div class="leaf">🥬</div>
+<div class="leaf leaf2">🌿</div>
+<div class="leaf leaf3">🍃</div>
+<style>
+.leaf{
+  position:fixed;
+  font-size:40px;
+  opacity:0.4;
+  animation:floatLeaf 18s linear infinite;
+}
+
+.leaf2{
+  left:70%;
+  animation-duration:22s;
+}
+
+.leaf3{
+  left:40%;
+  animation-duration:20s;
+}
+
+@keyframes floatLeaf{
+  0%{ top:-50px; transform:rotate(0deg);}
+  100%{ top:110%; transform:rotate(360deg);}
+}
+</style>
+<body>
+
+<div class="header">
+  <span onclick="goBack()" style="cursor:pointer;">←</span> Carrot
+</div>
+
+<div class="note">
+  <b>Fresh :</b> Fresh and Cleaned <br>
+  <b>Frozen :</b> Fresh, Cleaned and Frozen
+</div>
+
+<div id="carrotList"></div>
+
+<!-- Floating Cart -->
+<div class="floating-cart" onclick="goToCart()">
+  🛍
+  <span id="cartCount">0</span>
+</div>
+
+<script type="module">
+import { db } from "./firebase.js";
+import { collection, getDocs, addDoc }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const phone = sessionStorage.getItem("phone");
+
+if(!phone){
+  location.href="index.html";
+}
+
+/* BACK BUTTON */
+window.goBack = function(){
+  window.history.back();
+};
+
+/* GO TO CART */
+window.goToCart = function(){
+  window.location.href="cart.html";
+};
+
+const container = document.getElementById("carrotList");
+
+/* LOAD carrot DATA */
+const snapshot = await getDocs(collection(db,"carrot"));
+
+if(snapshot.empty){
+  container.innerHTML = "<p style='padding:15px'>No Carrot ailable</p>";
+}
+
+snapshot.forEach(doc => {
+
+  const data = doc.data();
+
+  container.innerHTML += `
+    <div class="card">
+      <h3>${data.category}</h3>
+
+      <div class="price-box">
+        <div class="old-price">₹ ${data.market}</div>
+        <div class="new-price">₹ ${data.offer}</div>
+      </div>
+
+      <button class="add-btn"
+        onclick="addToCart(this,'${data.category}',${data.offer})">
+        Add
+      </button>
+    </div>
+  `;
+});
+
+
+/* ADD TO CART */
+window.addToCart = async function(button,type,price){
+
+  try{
+    const cartRef = collection(db,"cart",phone,"items");
+
+    await addDoc(cartRef,{
+      name: "Carrot",
+      type: type,
+      category: "Vegetable",
+      price: price,
+      quantity: 1,
+      createdAt: new Date()
+    });
+
+    button.innerText = "Added ✅";
+    button.classList.add("added");
+    button.disabled = true;
+
+    updateCartCount();
+  }
+  catch(error){
+    console.error(error);
+    alert("Error adding to cart");
+  }
+};
+
+
+/* UPDATE CART COUNT (EXACT SAME AS BANGDA) */
+async function updateCartCount(){
+
+  const snapshot = await getDocs(collection(db,"cart",phone,"items"));
+
+  let totalQty = 0;
+
+  snapshot.forEach(doc=>{
+    totalQty += doc.data().quantity;
+  });
+
+  document.getElementById("cartCount").innerText = totalQty;
+}
+
+updateCartCount();
+
+</script>
+
+</body>
+</html>

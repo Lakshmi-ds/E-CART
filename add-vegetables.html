@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Menu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+body{
+    font-family: Arial, sans-serif;
+    margin:0;
+    padding:20px;
+    min-height:100vh;
+    background:linear-gradient(-45deg,#d4edda,#a8e6a3,#c8facc,#e6ffe6);
+    background-size:400% 400%;
+    animation:bgMove 12s ease infinite;
+    overflow-x:hidden;
+}
+
+/* Background animation */
+@keyframes bgMove{
+    0%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
+    100%{background-position:0% 50%;}
+}
+
+.container{
+    max-width:420px;
+    margin:auto;
+    background:white;
+    padding:25px;
+    border-radius:25px;
+    box-shadow:0 15px 30px rgba(0,0,0,0.15);
+    animation:fadeIn 0.8s ease;
+}
+
+@keyframes fadeIn{
+    from{opacity:0; transform:translateY(40px);}
+    to{opacity:1; transform:translateY(0);}
+}
+
+.header{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:25px;
+}
+
+.back{
+    font-size:22px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.back:hover{
+    transform:scale(1.2);
+    color:#2e7d32;
+}
+
+h2{
+    color:#2e7d32;
+}
+
+.field{
+    border:1px solid #c8e6c9;
+    border-radius:12px;
+    padding:14px;
+    margin-bottom:20px;
+    width:100%;
+    font-size:16px;
+    transition:0.3s;
+}
+
+.field:focus{
+    outline:none;
+    border-color:#66bb6a;
+    box-shadow:0 0 10px #a5d6a7;
+}
+
+.image-box{
+    border:2px dashed #81c784;
+    border-radius:15px;
+    height:160px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    margin-bottom:25px;
+    cursor:pointer;
+    overflow:hidden;
+    transition:0.3s;
+}
+
+.image-box:hover{
+    background:#f1fff1;
+    transform:scale(1.02);
+}
+
+.image-box img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.btn{
+    width:70%;
+    margin:auto;
+    display:block;
+    padding:14px;
+    border:none;
+    border-radius:30px;
+    background:#4caf50;
+    color:white;
+    font-weight:bold;
+    font-size:16px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.btn:hover{
+    background:#2e7d32;
+    transform:scale(1.05);
+}
+</style>
+</head>
+
+<body>
+  <div class="leaf">🍃</div>
+<div class="leaf leaf2">🥬</div>
+<div class="leaf leaf3">🌿</div>
+<style>
+.leaf{
+    position:fixed;
+    font-size:40px;
+    opacity:0.4;
+    animation:floatLeaf 15s linear infinite;
+}
+
+.leaf2{
+    left:70%;
+    animation-duration:18s;
+}
+
+.leaf3{
+    left:40%;
+    animation-duration:22s;
+}
+
+@keyframes floatLeaf{
+    0%{ top:-50px; transform:rotate(0deg);}
+    100%{ top:110%; transform:rotate(360deg);}
+}
+</style>
+
+<div class="container">
+
+    <div class="header">
+        <span class="back" onclick="location.href='vegetables.html'">←</span>
+        <h2>Add Menu</h2>
+    </div>
+
+    <!-- Removed Fish option -->
+    <select class="field" id="type">
+        <option>Veg</option>
+        <option>Non-Veg</option>
+    </select>
+
+    <input class="field" id="name" placeholder="Name">
+
+    <div class="image-box" onclick="pickImage()">
+        <span id="imgText">Tap to select image</span>
+        <input type="file" id="imgInput" hidden accept="image/*">
+    </div>
+
+    <button class="btn" onclick="saveMenu()">Add Menu</button>
+
+</div>
+<script type="module">
+
+/* ✅ IMPORT ONLY FROM firebase.js (same as fish) */
+import { db, doc, setDoc } from "./firebase.js";
+
+let imageData = "";
+
+/* pick image */
+const input = document.getElementById("imgInput");
+
+/* global function */
+window.pickImage = function () {
+  input.click();
+};
+
+
+/* preview image */
+input.addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const img = new Image();
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    img.src = reader.result;
+  };
+
+  img.onload = () => {
+    const canvas = document.createElement("canvas");
+
+    const MAX_WIDTH = 400;  // reduce size
+    const scale = MAX_WIDTH / img.width;
+
+    canvas.width = MAX_WIDTH;
+    canvas.height = img.height * scale;
+
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+    // compressed base64
+    imageData = canvas.toDataURL("image/jpeg", 0.6);
+
+    const box = document.querySelector(".image-box");
+    box.innerHTML = `<img src="${imageData}">`;
+  };
+
+  reader.readAsDataURL(file);
+});
+
+
+
+/* SAVE MENU */
+window.saveMenu = async function () {
+
+  const name = document.getElementById("name").value.trim();
+  const type = document.getElementById("type").value;
+
+  if (!name) {
+    alert("Enter name");
+    return;
+  }
+
+  try {
+
+    await setDoc(
+      doc(db, "vegetables", name.toLowerCase()),
+      {
+        name: name,
+        type: type,
+        image: imageData
+      }
+    );
+
+    alert("Added successfully");
+    location.href = "vegetables.html";
+
+  } catch (e) {
+    alert(e.message);
+  }
+};
+
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>Aero | Login</title>
+<!-- Floating Button -->
+
+
+<style>
+/* ===== Reset ===== */
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family: Arial, sans-serif;
+}
+
+/* ===== Center page ===== */
+body{
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#f5fafc;
+}
+
+/* ===== Card ===== */
+.card{
+  background:#fff;
+  width:380px;
+  padding:40px;
+  border-radius:18px;
+  box-shadow:0 12px 30px rgba(0,0,0,.1);
+
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+  align-items:center;
+}
+
+/* ===== Logo ===== */
+.logo{
+  font-size:40px;
+  color:#4e8ef7;
+  font-weight:bold;
+}
+
+/* ===== Inputs ===== */
+input{
+  width:100%;
+  padding:14px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  font-size:16px;
+}
+
+/* ===== Button ===== */
+button{
+  width:100%;
+  padding:14px;
+  background:#4e8ef7;
+  color:#fff;
+  border:none;
+  border-radius:10px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button:hover{
+  opacity:0.9;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <div class="logo">Aero</div>
+
+  <p>Enter your phone number</p>
+
+  <input type="tel" id="phone" placeholder="+91XXXXXXXXXX">
+
+  <button onclick="sendOTP()">Send OTP</button>
+</div>
+
+<script>
+function sendOTP() {
+  const phone = document.getElementById("phone").value.trim();
+  if(!phone){
+    alert("Enter phone number");
+    return;
+  }
+
+  alert("OTP sent (dummy)");
+
+  // ✅ ADD THIS: set role based on phone number
+  if (phone === "9999999999") {
+    localStorage.setItem("role", "admin");
+  } else {
+    localStorage.setItem("role", "user");
+  }
+
+  window.location.href = `verify-otp.html?phone=${encodeURIComponent(phone)}`;
+}
+</script>
+
+</body>
+</html>

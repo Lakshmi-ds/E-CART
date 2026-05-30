@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Add Beans</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    body{
+      margin:0;
+      font-family:Arial, sans-serif;
+      height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background:linear-gradient(-45deg,#d4edda,#a8e6a3,#c8facc,#e6ffe6);
+      background-size:400% 400%;
+      animation:bgMove 12s ease infinite;
+      overflow:hidden;
+    }
+
+    @keyframes bgMove{
+      0%{background-position:0% 50%;}
+      50%{background-position:100% 50%;}
+      100%{background-position:0% 50%;}
+    }
+
+    /* Floating Leaves */
+    .leaf{
+      position:fixed;
+      font-size:50px;
+      opacity:0.4;
+      animation:floatLeaf 15s linear infinite;
+      z-index:0;
+    }
+
+    .leaf2{
+      left:70%;
+      animation-duration:20s;
+    }
+
+    .leaf3{
+      left:30%;
+      animation-duration:18s;
+    }
+
+    @keyframes floatLeaf{
+      0%{ top:-60px; transform:rotate(0deg);}
+      100%{ top:110%; transform:rotate(360deg);}
+    }
+
+    /* Form Card */
+    .form-card{
+      width:350px;
+      padding:30px;
+      border-radius:25px;
+      background:white;
+      box-shadow:0 15px 30px rgba(0,0,0,0.15);
+      animation:fadeIn 0.8s ease;
+      position:relative;
+      z-index:1;
+    }
+
+    @keyframes fadeIn{
+      from{opacity:0; transform:translateY(40px);}
+      to{opacity:1; transform:translateY(0);}
+    }
+
+    h2{
+      text-align:center;
+      color:#2e7d32;
+    }
+
+    input, textarea{
+      width:100%;
+      padding:12px;
+      margin:12px 0;
+      border:1px solid #c8e6c9;
+      border-radius:12px;
+      outline:none;
+      font-size:14px;
+      transition:0.3s;
+    }
+
+    input:focus, textarea:focus{
+      border-color:#66bb6a;
+      box-shadow:0 0 10px #a5d6a7;
+    }
+
+    button{
+      width:100%;
+      padding:14px;
+      border:none;
+      border-radius:30px;
+      background:#4caf50;
+      color:white;
+      font-size:16px;
+      font-weight:bold;
+      cursor:pointer;
+      transition:0.3s;
+    }
+
+    button:hover{
+      background:#2e7d32;
+      transform:scale(1.05);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Floating Leaves -->
+  <div class="leaf">🍃</div>
+  <div class="leaf leaf2">🌿</div>
+  <div class="leaf leaf3">🍃</div>
+
+  <!-- Form -->
+  <div class="form-card">
+    <h2>Add Beans</h2>
+
+    <input id="category" placeholder="Category">
+    <input id="market" placeholder="Market Price">
+    <input id="offer" placeholder="Offer Price">
+
+    <input id="nutrition1" placeholder="Nutrition 1">
+    <input id="nutrition2" placeholder="Nutrition 2">
+
+    <textarea id="area" placeholder="Area (comma separated)"></textarea>
+
+    <button id="save">Save</button>
+  </div>
+
+  <script type="module">
+    import { db, collection, addDoc } from "./firebase.js";
+
+    document.getElementById("save").onclick = async () => {
+
+      const category = document.getElementById("category").value;
+      const market = document.getElementById("market").value;
+      const offer = document.getElementById("offer").value;
+      const nutrition1 = document.getElementById("nutrition1").value;
+      const nutrition2 = document.getElementById("nutrition2").value;
+
+      const area = document.getElementById("area").value
+        .split(",")
+        .map(a => a.trim());
+
+      await addDoc(collection(db, "beans"), {
+        category,
+        market,
+        offer,
+        nutrition1,
+        nutrition2,
+        area
+      });
+
+      alert("Beans Added 🌿");
+      location.href = "beans-list.html";
+    };
+  </script>
+
+</body>
+</html>

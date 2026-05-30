@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Edit Crab</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    body{
+      font-family: Arial;
+      padding:20px;
+      margin:0;
+      background: linear-gradient(to bottom, #87CEEB, #e0f7ff);
+      overflow-x:hidden;
+    }
+
+    /* Glass Card */
+    .card{
+      max-width:450px;
+      margin:60px auto;
+      background:rgba(255,255,255,0.92);
+      padding:25px;
+      border-radius:15px;
+      box-shadow:0 12px 30px rgba(0,0,0,0.15);
+      backdrop-filter: blur(10px);
+      position:relative;
+      z-index:2;
+    }
+
+    h2{
+      text-align:center;
+      margin-bottom:20px;
+      color:#0077b6;
+    }
+
+    input, textarea{
+      width:100%;
+      padding:12px;
+      margin:10px 0;
+      border-radius:8px;
+      border:1px solid #ccc;
+      font-size:15px;
+      transition:0.3s;
+    }
+
+    input:focus, textarea:focus{
+      border-color:#00b4d8;
+      box-shadow:0 0 8px rgba(0,180,216,0.4);
+      outline:none;
+    }
+
+    textarea{
+      resize:none;
+      height:80px;
+    }
+
+    button{
+      width:100%;
+      padding:13px;
+      margin-top:15px;
+      border:none;
+      border-radius:8px;
+      font-size:16px;
+      cursor:pointer;
+      background:#00b4d8;
+      color:white;
+      transition:0.3s;
+    }
+
+    button:hover{
+      background:#0096c7;
+      transform:translateY(-2px);
+      box-shadow:0 8px 20px rgba(0,0,0,0.2);
+    }
+
+    /* 🐟 Moving Fish Background */
+    .fish {
+      position: fixed;
+      top: 25%;
+      left: -150px;
+      font-size: 45px;
+      animation: swimRight 18s linear infinite;
+      opacity: 0.2;
+      z-index: 1;
+    }
+
+    .fish2 {
+      top: 65%;
+      font-size: 35px;
+      animation-duration: 25s;
+    }
+
+    @keyframes swimRight {
+      0% { left: -150px; }
+      100% { left: 110%; }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="fish">🐟🐠</div>
+<div class="fish fish2">🐠🐟</div>
+
+<div class="card">
+<h2>Edit Crab</h2>
+
+<input id="category" placeholder="Category">
+<input id="market" placeholder="Market Price">
+<input id="offer" placeholder="Offer Price">
+
+<input id="nutrition1" placeholder="Nutrition 1">
+<input id="nutrition2" placeholder="Nutrition 2">
+
+<textarea id="area" placeholder="Area comma separated"></textarea>
+
+<button id="update">Update</button>
+</div>
+
+<script type="module">
+import { db, doc } from "./firebase.js";
+import { getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// ✅ get id from URL
+const id = new URLSearchParams(window.location.search).get("id");
+
+if(!id){
+  alert("No ID found");
+}
+
+// inputs
+const category = document.getElementById("category");
+const market = document.getElementById("market");
+const offer = document.getElementById("offer");
+const nutrition1 = document.getElementById("nutrition1");
+const nutrition2 = document.getElementById("nutrition2");
+const area = document.getElementById("area");
+
+// ✅ load single document
+const snap = await getDoc(doc(db, "crab", id));
+
+if(snap.exists()){
+  const data = snap.data();
+
+  category.value = data.category || "";
+  market.value = data.market || "";
+  offer.value = data.offer || "";
+  nutrition1.value = data.nutrition1 || "";
+  nutrition2.value = data.nutrition2 || "";
+  area.value = data.area ? data.area.join(", ") : "";
+}else{
+  alert("Item not found");
+}
+
+// ✅ update document
+document.getElementById("update").onclick = async () => {
+  await updateDoc(doc(db, "crab", id), {
+    category: category.value,
+    market: market.value,
+    offer: offer.value,
+    nutrition1: nutrition1.value,
+    nutrition2: nutrition2.value,
+    area: area.value.split(",").map(a => a.trim())
+  });
+
+  alert("Updated Successfully");
+  location.href = "crab-list.html";
+};
+</script>
+
+</body>
+</html>

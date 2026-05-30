@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Agrotec | Register</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body { 
+  font-family: Arial, sans-serif; 
+  background: #f2f2f2; 
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+  height: 100vh; 
+}
+.card { 
+  background: white; 
+  padding: 30px; 
+  border-radius: 15px; 
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
+  width: 360px; 
+  text-align: center; 
+  overflow-y: auto; 
+  max-height: 90vh; 
+}
+.card input, .card button { 
+  width: 100%; 
+  padding: 12px; 
+  margin-bottom: 12px; 
+  border-radius: 10px; 
+  font-size: 14px; 
+  border: 1px solid #ccc; 
+}
+.card button { 
+  background: #4a8cff; 
+  color: white; 
+  border: none; 
+  cursor: pointer; 
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Agrotec</h2>
+  <p>Complete your registration</p>
+
+  <input id="firstName" type="text" placeholder="First Name">
+  <input id="lastName" type="text" placeholder="Last Name">
+  <input id="phone" type="text" placeholder="Phone Number">
+  <input id="email" type="email" placeholder="Email ID">
+  <input id="address" type="text" placeholder="Address">
+  <input id="pincode" type="text" placeholder="Pincode">
+  <input id="lat" type="text" placeholder="Latitude">
+  <input id="long" type="text" placeholder="Longitude">
+  <input id="birthdate" type="date">
+  <button onclick="registerUser()">Register</button>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// 🔥 Your Agrotec Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyD9C6d6QocJ-zvhlWxBZgF1Bxdv7lWIsOo",
+  authDomain: "agrotec-project.firebaseapp.com",
+  projectId: "agrotec-project",
+  storageBucket: "agrotec-project.firebasestorage.app",
+  messagingSenderId: "679211092379",
+  appId: "1:679211092379:web:2454dff96057583886b93e"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// If phone is stored from OTP login, auto-fill it
+const phoneFromSession = sessionStorage.getItem("phone");
+if(phoneFromSession) document.getElementById("phone").value = phoneFromSession;
+
+window.registerUser = async function() {
+  const firstName = document.getElementById("firstName").value.trim();
+  const lastName = document.getElementById("lastName").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const address = document.getElementById("address").value.trim();
+  const pincode = document.getElementById("pincode").value.trim();
+  const lat = document.getElementById("lat").value.trim();
+  const longVal = document.getElementById("long").value.trim();
+  const birthdate = document.getElementById("birthdate").value;
+
+  if(!firstName || !lastName || !phone || !email || !address || !pincode || !lat || !longVal || !birthdate){
+    alert("Please fill all fields"); 
+    return;
+  }
+
+  const userData = {
+    firstName,
+    lastName,
+    phoneNumber: phone,
+    email,
+    address,
+    pincode,
+    lat,
+    long: longVal,
+    birthdate,
+    userId: phone,
+    isAdmin: false,
+    isPremium: false,
+    orderHistory: []
+  };
+
+  try {
+    // Save user using phone as document ID (unique per user)
+    await setDoc(doc(db, "users", phone), userData);
+    alert("Registration Successful ✅");
+    sessionStorage.setItem("phone", phone); // store phone for future pages
+    window.location.href = "dashboard.html"; 
+  } catch(error){
+    console.error(error);
+    alert("Error saving data ❌");
+  }
+};
+</script>
+
+</body>
+</html>

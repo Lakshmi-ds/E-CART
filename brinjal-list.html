@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Brinjal List</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+
+<h2>Brinjal</h2>
+<div id="list"></div>
+
+<button onclick="location.href='add-brinjal.html'">+</button>
+
+<script type="module">
+import { db, collection, getDocs } from "./firebase.js";
+
+const list = document.getElementById("list");
+
+const snapshot = await getDocs(collection(db, "brinjal"));
+
+snapshot.forEach(docSnap => {
+  const data = docSnap.data();
+
+  const div = document.createElement("div");
+
+  div.innerHTML = `
+    <b>${data.category}</b><br>
+    Market: ${data.market} | Offer: ${data.offer}
+  `;
+
+  div.onclick = () => {
+    location.href = `edit-brinjal.html?id=${docSnap.id}`;
+  };
+
+  list.appendChild(div);
+});
+</script>
+
+</body>
+</html>

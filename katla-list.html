@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Katla Items</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    body{
+      font-family: Arial;
+      padding:20px;
+      background:#f2f7f8;
+    }
+
+    h2{
+      text-align:center;
+    }
+
+    .item{
+      background:white;
+      padding:12px;
+      margin:10px auto;
+      max-width:400px;
+      border-radius:10px;
+      box-shadow:0 3px 8px rgba(0,0,0,0.1);
+    }
+
+    button{
+      margin-top:10px;
+      padding:6px 10px;
+      border:none;
+      border-radius:6px;
+      cursor:pointer;
+    }
+
+    .delete{
+      background:red;
+      color:white;
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>Katla</h2>
+
+<div id="items"></div>
+
+<script type="module">
+import { db, collection, getDocs, deleteDoc, doc } from "./firebase.js";
+
+const container = document.getElementById("items");
+
+const snapshot = await getDocs(collection(db, "fish"));
+
+snapshot.forEach(docSnap => {
+  const data = docSnap.data();
+
+  // show only katla
+  if(data.category?.toLowerCase() !== "katla") return;
+
+  const div = document.createElement("div");
+  div.className = "item";
+
+  div.innerHTML = `
+    <b>Market:</b> ₹${data.market || "-"} <br>
+    <button class="delete">Delete</button>
+  `;
+
+  // delete
+  div.querySelector(".delete").onclick = async () => {
+    const ok = confirm("Delete item?");
+    if(ok){
+      await deleteDoc(doc(db, "fish", docSnap.id));
+      location.reload();
+    }
+  };
+
+  container.appendChild(div);
+});
+</script>
+
+</body>
+</html>

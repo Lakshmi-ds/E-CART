@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Aero | Verify OTP</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+* { box-sizing:border-box; font-family:Segoe UI, sans-serif; }
+body { margin:0; height:100vh; display:flex; justify-content:center; align-items:center; background:#f4f8fb; }
+.card { background:#fff; width:420px; padding:40px; border-radius:18px; box-shadow:0 10px 30px rgba(0,0,0,.08); text-align:center; }
+.logo { font-size:34px; font-weight:600; color:#4f8cff; margin-bottom:10px; }
+.subtitle { font-size:16px; color:#555; margin-bottom:25px; }
+.otp-inputs { display:flex; justify-content:space-between; gap:10px; margin-bottom:25px; }
+.otp-inputs input { width:55px; height:55px; text-align:center; font-size:22px; border-radius:10px; border:1px solid #ccc; outline:none; }
+.otp-inputs input:focus { border-color:#4f8cff; box-shadow:0 0 5px rgba(79,140,255,.4); }
+.btn { width:100%; height:50px; border:none; border-radius:12px; background:#4f8cff; color:#fff; font-size:16px; cursor:pointer; }
+.btn:hover { background:#3c78e0; }
+.resend { margin-top:15px; font-size:14px; color:#666; }
+.resend span { color:#4f8cff; cursor:pointer; font-weight:500; }
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <div class="logo">Aero</div>
+  <div class="subtitle">Enter the 6-digit OTP sent to your phone</div>
+
+  <div class="otp-inputs">
+    <input type="text" maxlength="1">
+    <input type="text" maxlength="1">
+    <input type="text" maxlength="1">
+    <input type="text" maxlength="1">
+    <input type="text" maxlength="1">
+    <input type="text" maxlength="1">
+  </div>
+
+  <button class="btn" onclick="verifyOTP()">Verify OTP</button>
+
+  <div class="resend">
+    Didn’t receive OTP? <span onclick="resendOTP()">Resend</span>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD9C6d6QocJ-zvhlWxBZgF1Bxdv7lWIsOo",
+  authDomain: "agrotec-project.firebaseapp.com",
+  projectId: "agrotec-project",
+  storageBucket: "agrotec-project.firebasestorage.app",
+  messagingSenderId: "679211092379",
+  appId: "1:679211092379:web:2454dff96057583886b93e"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const inputs = document.querySelectorAll(".otp-inputs input");
+
+// Get phone from URL
+const params = new URLSearchParams(window.location.search);
+const phone = params.get("phone");
+
+if (!phone) {
+  alert("Invalid access ❌");
+  window.location.href = "index.html";
+}
+
+// Get user document
+async function getUser(phone) {
+  const docRef = doc(db, "users", phone);
+  const docSnap = await getDoc(docRef);
+
+  if (docSnap.exists()) {
+    return docSnap.data();
+  } else {
+    return null;
+  }
+}
+
+window.verifyOTP = async function () {
+
+  let otp = "";
+  inputs.forEach(i => otp += i.value);
+
+  if (otp.length !== 6) {
+    alert("Enter 6-digit OTP");
+    return;
+  }
+
+  if (otp === "123456") {  // Dummy OTP
+
+    const userData = await getUser(phone);
+
+    if (userData) {
+
+      // ✅ Save session info
+      sessionStorage.setItem("phone", phone);
+      sessionStorage.setItem("isAdmin", userData.isAdmin);
+
+      alert("Login Successful ✅");
+
+      // Both go to dashboard
+      window.location.href = "dashboard.html";
+
+    } else {
+
+      alert("New user, complete registration ✅");
+      window.location.href = "register.html";
+    }
+
+  } else {
+    alert("Invalid OTP ❌");
+  }
+};
+
+window.resendOTP = function () {
+  alert("OTP resent (dummy)");
+};
+
+// Auto move cursor
+inputs.forEach((input, index) => {
+  input.addEventListener("input", () => {
+    if (input.value && index < inputs.length - 1) {
+      inputs[index + 1].focus();
+    }
+  });
+});
+</script>
+
+</body>
+</html>

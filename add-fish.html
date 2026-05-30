@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Add Fish</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+    font-family: Arial;
+    padding:20px;
+    margin:0;
+    min-height:100vh;
+    background: linear-gradient(to bottom, #0096c7, #48cae4, #ade8f4);
+    overflow:hidden;
+}
+
+/* 🌊 Aquarium Background */
+.aquarium{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    z-index:0;
+    pointer-events:none;
+}
+
+.fish{
+    position:absolute;
+    font-size:40px;
+    opacity:0.35;
+}
+
+.left{ animation: swimLeft linear infinite; }
+.right{ animation: swimRight linear infinite; }
+
+.f1{ top:15%; animation-duration:18s; }
+.f2{ top:30%; animation-duration:25s; }
+.f3{ top:50%; animation-duration:22s; }
+.f4{ top:65%; animation-duration:28s; }
+.f5{ top:80%; animation-duration:20s; }
+
+@keyframes swimRight{
+    0%{ left:-10%; }
+    100%{ left:110%; }
+}
+
+@keyframes swimLeft{
+    0%{ left:110%; transform:scaleX(-1); }
+    100%{ left:-10%; transform:scaleX(-1); }
+}
+
+/* 🦀 Crab walking */
+.crab{
+    position:absolute;
+    bottom:5px;
+    left:-10%;
+    font-size:45px;
+    opacity:0.4;
+    animation: walk 35s linear infinite;
+}
+
+@keyframes walk{
+    0%{ left:-10%; }
+    100%{ left:110%; }
+}
+
+/* 🫧 Bubbles */
+.bubble{
+    position:absolute;
+    bottom:-50px;
+    font-size:22px;
+    opacity:0.3;
+    animation: rise linear infinite;
+}
+
+@keyframes rise{
+    0%{ transform:translateY(0); opacity:0.4; }
+    100%{ transform:translateY(-1000px); opacity:0; }
+}
+
+/* ✨ Floating Glass Card */
+.container{
+    max-width:420px;
+    margin:auto;
+    position:relative;
+    z-index:2;
+    background:rgba(255,255,255,0.25);
+    backdrop-filter:blur(15px);
+    padding:25px;
+    border-radius:25px;
+    color:white;
+    box-shadow:0 10px 30px rgba(0,0,0,0.2);
+    animation: floatBox 4s ease-in-out infinite alternate;
+}
+
+@keyframes floatBox{
+    from{ transform:translateY(0px); }
+    to{ transform:translateY(-8px); }
+}
+
+.header{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:25px;
+}
+
+.back{
+    font-size:22px;
+    cursor:pointer;
+}
+
+.field{
+    border:2px solid white;
+    background:rgba(255,255,255,0.2);
+    color:white;
+    border-radius:12px;
+    padding:14px;
+    margin-bottom:20px;
+    width:100%;
+    font-size:16px;
+}
+
+.field::placeholder{
+    color:#eef;
+}
+
+.image-box{
+    border:2px dashed white;
+    border-radius:12px;
+    height:160px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    margin-bottom:25px;
+    cursor:pointer;
+    overflow:hidden;
+    transition:0.3s;
+}
+
+.image-box:hover{
+    background:rgba(255,255,255,0.2);
+    transform:scale(1.02);
+}
+
+.image-box img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.btn{
+    width:70%;
+    margin:auto;
+    display:block;
+    padding:14px;
+    border:none;
+    border-radius:25px;
+    background:white;
+    cursor:pointer;
+    font-weight:bold;
+    transition:0.3s;
+}
+
+.btn:hover{
+    background:#caf0f8;
+    transform:scale(1.05);
+}
+</style>
+</head>
+
+<body>
+
+<!-- 🌊 Ocean Background -->
+<div class="aquarium">
+    <!-- Fish -->
+    <div class="fish right f1">🐟</div>
+    <div class="fish left f2">🐠</div>
+    <div class="fish right f3">🐡</div>
+    <div class="fish left f4">🐟</div>
+    <div class="fish right f5">🐠</div>
+
+    <!-- Crab -->
+    <div class="crab">🦀</div>
+
+    <!-- Bubbles -->
+    <div class="bubble" style="left:10%; animation-duration:12s;">🫧</div>
+    <div class="bubble" style="left:25%; animation-duration:18s;">🫧</div>
+    <div class="bubble" style="left:45%; animation-duration:15s;">🫧</div>
+    <div class="bubble" style="left:65%; animation-duration:20s;">🫧</div>
+    <div class="bubble" style="left:85%; animation-duration:16s;">🫧</div>
+</div>
+
+<div class="container">
+
+    <div class="header">
+        <span class="back" onclick="location.href='fish.html'">←</span>
+        <h2>Add Fish</h2>
+    </div>
+
+    <input class="field" id="name" placeholder="Fish Name">
+
+    <div class="image-box" onclick="pickImage()">
+        <span>Tap to select image</span>
+        <input type="file" id="imgInput" hidden accept="image/*">
+    </div>
+
+    <button class="btn" onclick="saveFish()">Add Fish</button>
+
+</div>
+
+<script type="module">
+import { db } from "./firebase.js";
+import { doc, setDoc }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+let imageData = "";
+const input = document.getElementById("imgInput");
+
+window.pickImage = () => input.click();
+
+input.addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const img = new Image();
+  const reader = new FileReader();
+
+  reader.onload = () => { img.src = reader.result; };
+
+  img.onload = () => {
+    const canvas = document.createElement("canvas");
+    const MAX_WIDTH = 400;
+    const scale = MAX_WIDTH / img.width;
+
+    canvas.width = MAX_WIDTH;
+    canvas.height = img.height * scale;
+
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+    imageData = canvas.toDataURL("image/jpeg", 0.6);
+
+    const box = document.querySelector(".image-box");
+    box.innerHTML = '<img src="' + imageData + '">';
+  };
+
+  reader.readAsDataURL(file);
+});
+
+window.saveFish = async function(){
+  const name = document.getElementById("name").value.trim();
+
+  if(!name){
+    alert("Enter fish name");
+    return;
+  }
+
+  try{
+    await setDoc(
+      doc(db,"fish", name.toLowerCase()),
+      {
+        name: name,
+        image: imageData
+      }
+    );
+
+    alert("Added successfully 🐟");
+    location.href="fish.html";
+
+  }catch(e){
+    alert(e.message);
+  }
+};
+</script>
+
+</body>
+</html>
